@@ -1,8 +1,9 @@
 import { Router } from "express";
 import { pool } from "../config/database.js";
+
 const router = Router();
 
-router.get("/resumen", async (req, res) => {
+router.get("/resumen", async (_req, res) => {
   const [rows] = await pool.query(`
     SELECT
       (SELECT COUNT(*) FROM alumnos) AS totalAlumnos,
