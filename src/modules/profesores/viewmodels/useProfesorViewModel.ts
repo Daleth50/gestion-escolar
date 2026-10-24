@@ -1,15 +1,21 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
-import { mensajeError } from "@/lib/errores";
-import { profesoresService, type Profesor, type ProfesorInput } from "../services/profesoresService";
+import { getApiErrorMessage } from "@/lib/api";
+import type { Profesor, ProfesorInput } from "../models/Profesor";
+import { profesoresService } from "../services/profesoresService";
 
-const vacio: ProfesorInput = { nombre: "", correo: "", especialidad: "", estatus: "Activo" };
+const vacio: ProfesorInput = {
+  nombre: "",
+  correo: "",
+  especialidad: "",
+  activo: true,
+};
 
-export function useProfesoresViewModel() {
+export function useProfesorViewModel() {
   const [profesores, setProfesores] = useState<Profesor[]>([]);
   const [form, setForm] = useState<ProfesorInput>({ ...vacio });
-  const [editandoId, setEditandoId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [id, setId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   const cargar = useCallback(async () => {
@@ -17,28 +23,41 @@ export function useProfesoresViewModel() {
     setError("");
     try {
       setProfesores(await profesoresService.listar());
-    } catch (e) {
-      setError(mensajeError(e, "No se pudieron cargar los profesores"));
+    } catch (loadError) {
+      setError(
+        getApiErrorMessage(
+          loadError,
+          "No se pudieron cargar los profesores",
+        ),
+      );
     } finally {
       setLoading(false);
     }
   }, []);
 
-  useEffect(() => { void cargar(); }, [cargar]);
+  useEffect(() => {
+    void cargar();
+  }, [cargar]);
 
-  const actualizarCampo = (campo: keyof ProfesorInput, valor: string) =>
-    setForm(actual => ({ ...actual, [campo]: valor }));
+  const campo = <K extends keyof ProfesorInput>(
+    key: K,
+    value: ProfesorInput[K],
+  ) => setForm((current) => ({ ...current, [key]: value }));
 
   const editar = (profesor: Profesor) => {
-    setEditandoId(profesor.id);
-    setForm({ nombre: profesor.nombre, correo: profesor.correo,
-      especialidad: profesor.especialidad ?? "", estatus: profesor.estatus });
+    setId(profesor.id);
+    setForm({
+      nombre: profesor.nombre,
+      correo: profesor.correo,
+      especialidad: profesor.especialidad ?? "",
+      activo: profesor.activo,
+    });
     setError("");
   };
 
   const cancelar = () => {
+    setId(null);
     setForm({ ...vacio });
-    setEditandoId(null);
     setError("");
   };
 
@@ -50,30 +69,71 @@ export function useProfesoresViewModel() {
     setLoading(true);
     setError("");
     try {
-      if (editandoId) await profesoresService.actualizar(editandoId, form);
+      if (id) await profesoresService.actualizar(id, form);
       else await profesoresService.crear(form);
-      await cargar();
-      cancelar();
-    } catch (e) {
-      setError(mensajeError(e, "No se pudo guardar el profesor"));
+      setForm({ ...vacio });
+      setId(null);
+    } catch (saveError) {
+      setError(
+        getApiErrorMessage(saveError, "No se pudo guardar el profesor"),
+      );
+      setLoading(false);
+      return;
+    }
+    try {
+      setProfesores(await profesoresService.listar());
+    } catch (loadError) {
+      setError(
+        `El cambio se guardó, pero no se pudo actualizar la lista: ${getApiErrorMessage(
+          loadError,
+          "Error al cargar profesores",
+        )}`,
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  const eliminar = async (id: string) => {
+  const eliminar = async (profesorId: string) => {
     setLoading(true);
     setError("");
     try {
-      await profesoresService.eliminar(id);
-      await cargar();
-    } catch (e) {
-      setError(mensajeError(e, "No se pudo eliminar el profesor"));
+      await profesoresService.eliminar(profesorId);
+      setProfesores((current) =>
+        current.filter((profesor) => profesor.id !== profesorId),
+      );
+      if (id === profesorId) cancelar();
+    } catch (deleteError) {
+      setError(
+        getApiErrorMessage(deleteError, "No se pudo eliminar el profesor"),
+      );
+      setLoading(false);
+      return;
+    }
+    try {
+      setProfesores(await profesoresService.listar());
+    } catch (loadError) {
+      setError(
+        `El profesor se eliminó, pero no se pudo actualizar la lista: ${getApiErrorMessage(
+          loadError,
+          "Error al cargar profesores",
+        )}`,
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  return { profesores, form, editandoId, loading, error, cargar,
-    actualizarCampo, editar, guardar, eliminar, cancelar };
+  return {
+    profesores,
+    form,
+    id,
+    loading,
+    error,
+    campo,
+    editar,
+    guardar,
+    eliminar,
+    cancelar,
+  };
 }

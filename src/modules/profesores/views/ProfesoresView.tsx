@@ -1,51 +1,131 @@
 "use client";
-import {useProfesoresViewModel} from "../viewmodels/useProfesorViewModel";
-import {Alert,Button,Checkbox,FormControlLabel,Paper,Stack,TextField,Typography,Table,TableBody,TableCell,TableHead,TableRow} from "@mui/material";
-export default function ProfesoresView(){const vm=useProfesoresViewModel();return <Stack spacing={3}>
+import {
+  Alert,
+  Button,
+  Checkbox,
+  CircularProgress,
+  FormControlLabel,
+  Paper,
+  Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { useProfesorViewModel } from "../viewmodels/useProfesorViewModel";
 
-<Typography variant="h4">Profesores</Typography><Paper sx={{p:3}}>
-    <Stack spacing={2}>
-        {vm.error&&<Alert severity="error">{vm.error}</Alert>}
-        <TextField label="Nombre" value={vm.form.nombre} onChange={e=>vm.actualizarCampo("nombre",e.target.value)}/>
-        <TextField label="Correo" type="email" value={vm.form.correo} onChange={e=>vm.actualizarCampo("correo",e.target.value)}/>
-        <TextField label="Especialidad" value={vm.form.especialidad} onChange={e=>vm.actualizarCampo("especialidad",e.target.value)}/>
-        <FormControlLabel control={<Checkbox checked={vm.form.estatus==="Activo"} onChange={e=>vm.actualizarCampo("estatus",e.target.checked?"Activo":"Inactivo")}/>} label="Activo"/>
-        <Stack direction="row" spacing={2}>
-            <Button variant="contained" disabled={!vm.form.nombre.trim()||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(vm.form.correo)} onClick={vm.guardar}>{vm.editandoId?"Actualizar":"Agregar"}</Button>
-        <Button onClick={vm.cancelar}>Cancelar</Button>
-    </Stack>
-</Stack>
-</Paper>
-<Paper sx={{overflowX:"auto"}}>
-    <Table>
-        <TableHead>
+export default function ProfesoresView() {
+  const vm = useProfesorViewModel();
+  const correoValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(vm.form.correo);
+
+  return (
+    <Stack spacing={3}>
+      <Typography variant="h4">Profesores</Typography>
+      {vm.error && <Alert severity="error">{vm.error}</Alert>}
+      <Paper sx={{ p: 3 }}>
+        <Stack spacing={2}>
+          <TextField
+            label="Nombre"
+            value={vm.form.nombre}
+            disabled={vm.loading}
+            onChange={(event) => vm.campo("nombre", event.target.value)}
+          />
+          <TextField
+            label="Correo"
+            type="email"
+            value={vm.form.correo}
+            disabled={vm.loading}
+            onChange={(event) => vm.campo("correo", event.target.value)}
+          />
+          <TextField
+            label="Especialidad"
+            value={vm.form.especialidad}
+            disabled={vm.loading}
+            onChange={(event) => vm.campo("especialidad", event.target.value)}
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={vm.form.activo}
+                disabled={vm.loading}
+                onChange={(event) => vm.campo("activo", event.target.checked)}
+              />
+            }
+            label="Activo"
+          />
+          <Stack direction="row" spacing={2}>
+            <Button
+              variant="contained"
+              disabled={
+                vm.loading ||
+                !vm.form.nombre.trim() ||
+                !correoValido
+              }
+              onClick={() => void vm.guardar()}
+            >
+              {vm.id ? "Actualizar" : "Agregar"}
+            </Button>
+            <Button disabled={vm.loading} onClick={vm.cancelar}>
+              Cancelar
+            </Button>
+          </Stack>
+        </Stack>
+      </Paper>
+      <Paper sx={{ overflowX: "auto" }}>
+        {vm.loading && (
+          <Stack alignItems="center" sx={{ p: 2 }}>
+            <CircularProgress size={24} aria-label="Cargando profesores" />
+          </Stack>
+        )}
+        <Table>
+          <TableHead>
             <TableRow>
-                <TableCell>Nombre</TableCell>
-                <TableCell>Correo</TableCell>
-                <TableCell>Especialidad</TableCell>
-                <TableCell>Estado</TableCell>
-                <TableCell>Acciones</TableCell>
+              <TableCell>Nombre</TableCell>
+              <TableCell>Correo</TableCell>
+              <TableCell>Especialidad</TableCell>
+              <TableCell>Estado</TableCell>
+              <TableCell>Acciones</TableCell>
             </TableRow>
-        </TableHead>
-        <TableBody>
-            {vm.profesores.map(p => (
-                <TableRow key={p.id}>
-                    <TableCell>{p.nombre}</TableCell>
-                    <TableCell>{p.correo}</TableCell>
-                    <TableCell>{p.especialidad}</TableCell>
-                    <TableCell>{p.estatus}</TableCell>
-                    <TableCell>
-                        <Button onClick={() => vm.editar(p)}>Editar</Button>
-                        <Button color="error" onClick={() => {
-                            if (confirm("¿Eliminar profesor?")) {
-                                vm.eliminar(p.id);
-                            }
-                        }}>
-                            Eliminar
-                        </Button>
-                    </TableCell>
-                </TableRow>
+          </TableHead>
+          <TableBody>
+            {vm.profesores.map((profesor) => (
+              <TableRow key={profesor.id}>
+                <TableCell>{profesor.nombre}</TableCell>
+                <TableCell>{profesor.correo}</TableCell>
+                <TableCell>{profesor.especialidad}</TableCell>
+                <TableCell>{profesor.activo ? "Activo" : "Inactivo"}</TableCell>
+                <TableCell>
+                  <Button
+                    disabled={vm.loading}
+                    onClick={() => vm.editar(profesor)}
+                  >
+                    Editar
+                  </Button>
+                  <Button
+                    color="error"
+                    disabled={vm.loading}
+                    onClick={() => {
+                      if (window.confirm("¿Eliminar profesor?")) {
+                        void vm.eliminar(profesor.id);
+                      }
+                    }}
+                  >
+                    Eliminar
+                  </Button>
+                </TableCell>
+              </TableRow>
             ))}
-        </TableBody>
-    </Table>
-</Paper></Stack>}
+            {!vm.loading && vm.profesores.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={5}>Sin profesores</TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </Paper>
+    </Stack>
+  );
+}
