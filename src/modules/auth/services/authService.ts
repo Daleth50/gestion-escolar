@@ -12,4 +12,8 @@ export const authService = {
   guardarSesion(sesion: LoginResponse) {
     localStorage.setItem(SESSION_KEY, JSON.stringify(sesion));
   },
+
+  cerrarSesion() {
+    localStorage.removeItem(SESSION_KEY);
+  },
 };
