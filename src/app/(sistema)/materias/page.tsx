@@ -1,15 +1,2 @@
-import { Typography, Paper, Box } from "@mui/material";
-
-export default function Page() {
-  return (
-    <Box>
-      <Typography variant="h4" gutterBottom>
-        Materias
-      </Typography>
-
-      <Paper sx={{ p: 3 }}>
-        Módulo Materias - Próximamente
-      </Paper>
-    </Box>
-  );
-}
+import MateriasView from "@/modules/materias/views/MateriasView";
+export default function Page(){return <MateriasView/>;}
