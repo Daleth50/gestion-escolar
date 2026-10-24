@@ -46,6 +46,18 @@ Salud de la API: [http://localhost:4000/api/health](http://localhost:4000/api/he
 junto con el volumen MySQL. Consulta [05_Integracion_Docker_MySQL_Express_React_MVVM.md](./05_Integracion_Docker_MySQL_Express_React_MVVM.md)
 para ver los endpoints, las pruebas y los pasos detallados.
 
+### Credenciales de desarrollo
+
+El seed crea un usuario para iniciar sesión en [http://localhost:3000/login](http://localhost:3000/login):
+
+| Correo              | Contraseña |
+| ------------------- | ---------- |
+| `admin@ejemplo.edu` | `admin123` |
+
+Solo para desarrollo local. El backend requiere `AUTH_SECRET` en `.env`
+(ya incluido en `.env.example`). Si la base ya existía, aplica el esquema
+nuevo con `docker compose down -v` y vuelve a levantar.
+
 ## Verificación
 
 ```bash
