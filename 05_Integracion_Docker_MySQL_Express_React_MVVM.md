@@ -184,33 +184,19 @@ INSERT INTO grupo_materias (grupo_id, materia_id) VALUES
 
 ## Paso 4. Variables de entorno
 
-**Archivo:** `.env` en la raíz del proyecto:
+Crear `.env` en la raíz a partir de `.env.example`:
 
 ```dotenv
-MYSQL_ROOT_PASSWORD=root_dev_2026
+MYSQL_ROOT_PASSWORD=root_dev_change_me
 MYSQL_DATABASE=gestion_escolar
 MYSQL_USER=escolar_api
-MYSQL_PASSWORD=escolar_dev_2026
-DB_HOST=db
-DB_PORT=3306
-DB_NAME=gestion_escolar
-DB_USER=escolar_api
-DB_PASSWORD=escolar_dev_2026
+MYSQL_PASSWORD=escolar_dev_change_me
 API_PORT=4000
 ```
 
-Crear `.env.example` con variables y valores ficticios. Agregar a `.gitignore`:
-
-```gitignore
-.env
-.env.*
-!.env.example
-node_modules/
-.next/
-.DS_Store
-```
-
-**Seguridad:** contraseñas exclusivamente didácticas. Nunca compartir el `.env` real ni utilizar estas claves en producción.
+Compose proporciona `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER` y
+`DB_PASSWORD` al contenedor API. Mantener `.env` fuera de Git; los valores de
+ejemplo son exclusivamente didácticos y no se deben usar en producción.
 
 ## Paso 5. Docker Compose
 
