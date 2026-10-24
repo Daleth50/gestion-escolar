@@ -1,7 +1,23 @@
 "use client";
 import {useEffect,useState} from "react";
-import {schoolStore} from "@/lib/schoolStore";
-import {Card,CardContent,Stack,Typography} from "@mui/material";
-export default function DashboardView(){const [totales,setTotales]=useState({profesores:0,materias:0,grupos:0});
-useEffect(()=>{const refresh=()=>{const d=schoolStore.leer();setTotales({profesores:d.profesores.length,materias:d.materias.length,grupos:d.grupos.length});};refresh();return schoolStore.suscribir(refresh);},[]);
-return <><Typography variant="h4" gutterBottom>Dashboard</Typography><Stack direction={{xs:"column",md:"row"}} spacing={2}>{Object.entries(totales).map(([label,n])=><Card key={label} sx={{flex:1}}><CardContent><Typography color="text.secondary">{label}</Typography><Typography variant="h3">{n}</Typography></CardContent></Card>)}</Stack><Typography sx={{mt:3}} color="text.secondary">El módulo Alumnos de la lección anterior utiliza memoria independiente; su indicador se integrará al migrarlo al repositorio compartido.</Typography></>}
+import {mensajeError} from "@/lib/errores";
+import {obtenerResumen} from "../../reportes/services/reportesService";
+import {Alert,Card,CardContent,Stack,Typography} from "@mui/material";
+
+const etiquetas={totalAlumnos:"alumnos",totalProfesores:"profesores",totalMaterias:"materias",totalGrupos:"grupos"} as const;
+
+export default function DashboardView(){
+  const [totales,setTotales]=useState<Record<keyof typeof etiquetas,number>>({totalAlumnos:0,totalProfesores:0,totalMaterias:0,totalGrupos:0});
+  const [error,setError]=useState("");
+  useEffect(()=>{obtenerResumen().then(setTotales).catch(e=>setError(mensajeError(e,"No se pudo cargar el resumen")));},[]);
+  return <>
+    <Typography variant="h4" gutterBottom>Dashboard</Typography>
+    {error&&<Alert severity="error" sx={{mb:2}}>{error}</Alert>}
+    <Stack direction={{xs:"column",md:"row"}} spacing={2}>
+      {(Object.keys(etiquetas) as (keyof typeof etiquetas)[]).map(k=><Card key={k} sx={{flex:1}}><CardContent>
+        <Typography color="text.secondary">{etiquetas[k]}</Typography>
+        <Typography variant="h3">{totales[k]}</Typography>
+      </CardContent></Card>)}
+    </Stack>
+  </>;
+}
