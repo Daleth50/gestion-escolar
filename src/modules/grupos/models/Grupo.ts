@@ -1,3 +1,8 @@
-import type { Grupo } from "@/lib/schoolStore";
-export type { Grupo };
-export type GrupoInput=Omit<Grupo,"id">;
+export interface Grupo {
+  id: string;
+  clave: string;
+  semestre: number;
+  cicloEscolar: string;
+  materiaIds: string[];
+}
+export type GrupoInput = Omit<Grupo, "id">;
