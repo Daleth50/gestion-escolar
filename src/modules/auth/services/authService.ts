@@ -13,6 +13,20 @@ export const authService = {
     localStorage.setItem(SESSION_KEY, JSON.stringify(sesion));
   },
 
+  haySesionVigente(): boolean {
+    try {
+      const sesion: LoginResponse = JSON.parse(
+        localStorage.getItem(SESSION_KEY) ?? "null",
+      );
+      const payload = JSON.parse(
+        atob(sesion.token.split(".")[0].replace(/-/g, "+").replace(/_/g, "/")),
+      );
+      return payload.exp > Date.now() / 1000;
+    } catch {
+      return false;
+    }
+  },
+
   cerrarSesion() {
     localStorage.removeItem(SESSION_KEY);
   },
