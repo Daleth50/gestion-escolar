@@ -45,3 +45,10 @@ CREATE TABLE grupo_materias (
   FOREIGN KEY (grupo_id) REFERENCES grupos(id) ON DELETE CASCADE,
   FOREIGN KEY (materia_id) REFERENCES materias(id) ON DELETE CASCADE
 );
+
+CREATE TABLE usuarios (
+  id CHAR(36) PRIMARY KEY,
+  nombre VARCHAR(150) NOT NULL,
+  correo VARCHAR(150) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL
+);

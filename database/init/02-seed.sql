@@ -15,3 +15,7 @@ INSERT INTO grupos (id, clave, semestre, ciclo_escolar) VALUES
 
 INSERT INTO grupo_materias (grupo_id, materia_id) VALUES
   ('55555555-5555-4555-8555-555555555555', '33333333-3333-4333-8333-333333333333');
+
+-- Usuario de desarrollo: admin@ejemplo.edu / admin123
+INSERT INTO usuarios (id, nombre, correo, password_hash) VALUES
+  ('66666666-6666-4666-8666-666666666666', 'Administrador', 'admin@ejemplo.edu', '464f2cf3a0da3a52ae6759821cf167d2:c2fcac044f4236764d7f0594920fc2a4e1bc6b3857abc5863043c1e43306c8613759eeea4ebfc748b01aa5ea8978dcffd36e39aa39ec4719d9c626efcbe69ae7');
