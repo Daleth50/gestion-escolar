@@ -15,7 +15,6 @@ services:
           "CMD-SHELL",
           "mysqladmin ping -h 127.0.0.1 -uroot -p\"$$MYSQL_ROOT_PASSWORD\"",
         ]
->>>>>>> d4d8cc2 (build(docker): orchestrate MySQL and Express API)
       interval: 10s
       timeout: 5s
       retries: 10
