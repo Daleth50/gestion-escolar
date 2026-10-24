@@ -3,6 +3,6 @@ export interface Alumno {
   matricula: string;
   nombre: string;
   correo: string;
-  grupo: string;
+  grupoId: string | null;
 }
 export type AlumnoInput = Omit<Alumno, "id">;
