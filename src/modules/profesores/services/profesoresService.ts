@@ -1,11 +1,32 @@
-import {schoolStore} from "@/lib/schoolStore";
-import type {Profesor} from "../models/Profesor";
-export const profesoresService={
- listar:():Profesor[]=>schoolStore.leer().profesores,
- guardar(item:Profesor){const rows=schoolStore.leer().profesores;
-  if(rows.some(x=>x.id!==item.id&&x.correo.toLowerCase()===item.correo.toLowerCase()))throw Error("Registro duplicado");
-  schoolStore.actualizar("profesores",rows.some(x=>x.id===item.id)?rows.map(x=>x.id===item.id?item:x):[...rows,item]);},
- eliminar(id:string){const data=schoolStore.leer();
-  if(data.materias.some(m=>m.profesorId===id))throw Error("Profesor asignado a una materia");
-  schoolStore.actualizar("profesores",data.profesores.filter(x=>x.id!==id));}
+import { api } from "@/lib/api";
+
+export interface Profesor {
+  id: string;
+  nombre: string;
+  correo: string;
+  especialidad: string | null;
+  estatus: string;
+}
+export type ProfesorInput = Omit<Profesor, "id">;
+
+export const profesoresService = {
+  async listar(): Promise<Profesor[]> {
+    const { data } = await api.get<Profesor[]>("/profesores");
+    return data;
+  },
+  async obtener(id: string): Promise<Profesor> {
+    const { data } = await api.get<Profesor>(`/profesores/${id}`);
+    return data;
+  },
+  async crear(datos: ProfesorInput): Promise<Profesor> {
+    const { data } = await api.post<Profesor>("/profesores", datos);
+    return data;
+  },
+  async actualizar(id: string, datos: ProfesorInput): Promise<Profesor> {
+    const { data } = await api.put<Profesor>(`/profesores/${id}`, datos);
+    return data;
+  },
+  async eliminar(id: string): Promise<void> {
+    await api.delete(`/profesores/${id}`);
+  }
 };
