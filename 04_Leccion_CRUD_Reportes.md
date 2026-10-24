@@ -84,7 +84,7 @@ git push -u origin feature/catalogos-reportes
 ```
 Crear un Pull Request hacia `main`, revisar el código y fusionar después de validar. No subir datos reales ni secretos.
 
-## 11. Evaluación sugerida
+## 11. Evaluación
 - Arquitectura MVVM y reutilización: **25%**
 - CRUD Profesores: **15%**
 - CRUD Materias: **15%**
