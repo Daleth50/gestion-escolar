@@ -7,6 +7,7 @@ import {
   TextField,
   Button,
   Avatar,
+  Alert,
 } from "@mui/material";
 
 import SchoolIcon from "@mui/icons-material/School";
@@ -14,7 +15,7 @@ import SchoolIcon from "@mui/icons-material/School";
 import { useLoginViewModel } from "../viewmodels/useLoginViewModel";
 
 export default function LoginView() {
-  const { form, updateField, login } = useLoginViewModel();
+  const { form, updateField, login, error, cargando } = useLoginViewModel();
 
   return (
     <Box
@@ -88,14 +89,21 @@ export default function LoginView() {
             onChange={(event) => updateField("password", event.target.value)}
           />
 
+          {error && (
+            <Alert severity="error" sx={{ mt: 2 }}>
+              {error}
+            </Alert>
+          )}
+
           <Button
             fullWidth
+            disabled={cargando}
             type="submit"
             variant="contained"
             size="large"
             sx={{ mt: 3 }}
           >
-            Iniciar sesión
+            {cargando ? "Ingresando..." : "Iniciar sesión"}
           </Button>
         </Box>
       </Paper>
