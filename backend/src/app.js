@@ -2,6 +2,7 @@ import "dotenv/config";
 import cors from "cors";
 import express from "express";
 import { pool } from "./config/database.js";
+import authRoutes from "./routes/authRoutes.js";
 import profesoresRoutes from "./routes/profesoresRoutes.js";
 import alumnosRoutes from "./routes/alumnosRoutes.js";
 import materiasRoutes from "./routes/materiasRoutes.js";
@@ -12,6 +13,9 @@ const app = express();
 const port = Number(process.env.PORT || 4000);
 if (!Number.isInteger(port) || port < 1 || port > 65535) {
   throw new Error("PORT debe ser un puerto válido");
+}
+if (!process.env.AUTH_SECRET) {
+  throw new Error("Falta la variable de entorno AUTH_SECRET");
 }
 if (!process.env.CORS_ORIGIN) {
   throw new Error("Falta la variable de entorno CORS_ORIGIN");
@@ -37,6 +41,7 @@ app.get("/api/health", async (_req, res) => {
   await pool.query("SELECT 1");
   res.json({ status: "ok", database: "connected" });
 });
+app.use("/api/auth", authRoutes);
 app.use("/api/profesores", profesoresRoutes);
 app.use("/api/alumnos", alumnosRoutes);
 app.use("/api/materias", materiasRoutes);

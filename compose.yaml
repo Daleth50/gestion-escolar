@@ -35,6 +35,7 @@ services:
       DB_NAME: ${MYSQL_DATABASE:-gestion_escolar}
       DB_USER: ${MYSQL_USER:?Set MYSQL_USER in .env}
       DB_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD in .env}
+      AUTH_SECRET: ${AUTH_SECRET:?Set AUTH_SECRET in .env}
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000,http://localhost:3001,http://192.168.1.129:3000}
     depends_on:
       db:
