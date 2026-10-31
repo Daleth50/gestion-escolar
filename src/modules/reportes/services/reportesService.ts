@@ -6,7 +6,7 @@ import { profesoresService } from "../../profesores/services/profesoresService";
 import type { Alumno } from "../../alumnos/models/Alumno";
 import type { Grupo } from "../../grupos/models/Grupo";
 import type { Materia } from "../../materias/models/Materia";
-import type { Profesor } from "../../profesores/services/profesoresService";
+import type { Profesor } from "../../profesores/models/Profesor";
 
 export type Escolar = { profesores: Profesor[]; alumnos: Alumno[]; materias: Materia[]; grupos: Grupo[] };
 export type TipoReporte = "todos" | "profesores" | "alumnos" | "materias" | "grupos";

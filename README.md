@@ -46,6 +46,70 @@ Salud de la API: [http://localhost:4000/api/health](http://localhost:4000/api/he
 junto con el volumen MySQL. Consulta [05_Integracion_Docker_MySQL_Express_React_MVVM.md](./05_Integracion_Docker_MySQL_Express_React_MVVM.md)
 para ver los endpoints, las pruebas y los pasos detallados.
 
+## Despliegue de prueba con CI/CD
+
+La configuración incluida usa GitHub Actions para CI, Vercel para el frontend,
+Render para la API y Railway para MySQL. El archivo
+[`.github/workflows/ci.yml`](./.github/workflows/ci.yml) valida lint, TypeScript,
+build y sintaxis de la API en cada pull request y en `main`. El archivo
+[`render.yaml`](./render.yaml) define el servicio de Render.
+
+### 1. Crear la base MySQL en Railway
+
+1. Crear un proyecto en Railway y añadir MySQL.
+2. Copiar las credenciales públicas de conexión: host, puerto, base, usuario y
+   contraseña. No subirlas al repositorio.
+3. Ejecutar el contenido de `database/init/01-schema.sql` y
+   `database/init/02-seed.sql` desde un cliente MySQL conectado a Railway.
+
+### 2. Publicar la API en Render
+
+1. Crear un Web Service desde el repositorio de GitHub o usar **Blueprint** y
+   seleccionar `render.yaml`.
+2. Confirmar `Root Directory = backend`, región y rama `main`.
+3. Configurar `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER` y `DB_PASSWORD` con
+   los datos de Railway.
+4. Generar un valor largo y aleatorio para `AUTH_SECRET`.
+5. Dejar temporalmente `CORS_ORIGIN` como la URL final de Vercel. Si todavía no
+   existe, se puede actualizar después y hacer un redeploy.
+6. Esperar el despliegue y comprobar:
+
+   ```bash
+   curl --fail https://TU_API.onrender.com/api/health
+   ```
+
+   La respuesta esperada contiene `"status":"ok"` y
+   `"database":"connected"`.
+
+### 3. Publicar el frontend en Vercel
+
+1. Importar el repositorio en Vercel.
+2. Usar la raíz del repositorio como **Root Directory**.
+3. Mantener el framework `Next.js`, el comando `npm run build` y el comando de
+   instalación `npm ci`.
+4. Crear la variable `NEXT_PUBLIC_API_URL` con:
+
+   ```text
+   https://TU_API.onrender.com/api
+   ```
+
+5. Aplicarla al entorno `Production` y desplegar.
+6. Copiar la URL final de Vercel y agregarla a `CORS_ORIGIN` en Render. Separar
+   varios orígenes con comas, sin espacios innecesarios.
+7. Hacer un redeploy de Render y probar login y un CRUD real desde Vercel.
+
+### 4. Validar el flujo CI/CD
+
+1. Crear una rama y abrir un pull request: GitHub Actions debe ejecutar los
+   checks de frontend y backend.
+2. Integrar el pull request en `main`.
+3. Vercel debe desplegar automáticamente el frontend y Render la API.
+4. Verificar `/api/health`, login, CRUD, consola del navegador y logs.
+
+Para una prueba temporal, borrar el proyecto de Railway, el servicio de Render
+y el proyecto de Vercel al terminar. No uses las credenciales de desarrollo
+incluidas en `.env.example` en servicios públicos.
+
 ### Credenciales de desarrollo
 
 El seed crea un usuario para iniciar sesión en [http://localhost:3000/login](http://localhost:3000/login):

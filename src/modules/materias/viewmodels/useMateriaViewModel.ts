@@ -1,7 +1,8 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
 import { mensajeError } from "@/lib/errores";
-import { profesoresService, type Profesor } from "../../profesores/services/profesoresService";
+import { profesoresService } from "../../profesores/services/profesoresService";
+import type { Profesor } from "../../profesores/models/Profesor";
 import type { Materia, MateriaInput } from "../models/Materia";
 import { materiasService } from "../services/materiasService";
 
