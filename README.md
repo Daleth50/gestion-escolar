@@ -49,26 +49,29 @@ para ver los endpoints, las pruebas y los pasos detallados.
 ## Despliegue de prueba con CI/CD
 
 La configuración incluida usa GitHub Actions para CI, Vercel para el frontend,
-Render para la API y Railway para MySQL. El archivo
+Render para la API y TiDB Cloud Starter para la base compatible con MySQL. El archivo
 [`.github/workflows/ci.yml`](./.github/workflows/ci.yml) valida lint, TypeScript,
 build y sintaxis de la API en cada pull request y en `main`. El archivo
 [`render.yaml`](./render.yaml) define el servicio de Render.
 
-### 1. Crear la base MySQL en Railway
+### 1. Crear la base compatible con MySQL en TiDB Cloud
 
-1. Crear un proyecto en Railway y añadir MySQL.
-2. Copiar las credenciales públicas de conexión: host, puerto, base, usuario y
-   contraseña. No subirlas al repositorio.
-3. Ejecutar el contenido de `database/init/01-schema.sql` y
-   `database/init/02-seed.sql` desde un cliente MySQL conectado a Railway.
+1. Crear una cuenta en [TiDB Cloud](https://tidbcloud.com/) y crear una
+   instancia **Starter**.
+2. Abrir **Connect** y seleccionar la conexión pública para Node.js/mysql2.
+3. Copiar host, puerto `4000`, base, usuario y contraseña. El usuario debe ser
+   exactamente el que muestra TiDB, incluido su prefijo si aparece. No subir
+   estas credenciales al repositorio.
+4. Ejecutar el contenido de `database/init/01-schema.sql` y
+   `database/init/02-seed.sql` desde un cliente MySQL conectado a TiDB.
 
 ### 2. Publicar la API en Render
 
 1. Crear un Web Service desde el repositorio de GitHub o usar **Blueprint** y
    seleccionar `render.yaml`.
 2. Confirmar `Root Directory = backend`, región y rama `main`.
-3. Configurar `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER` y `DB_PASSWORD` con
-   los datos de Railway.
+3. Configurar `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` y
+   `DB_SSL=true` con los datos de TiDB.
 4. Generar un valor largo y aleatorio para `AUTH_SECRET`.
 5. Dejar temporalmente `CORS_ORIGIN` como la URL final de Vercel. Si todavía no
    existe, se puede actualizar después y hacer un redeploy.
@@ -106,8 +109,8 @@ build y sintaxis de la API en cada pull request y en `main`. El archivo
 3. Vercel debe desplegar automáticamente el frontend y Render la API.
 4. Verificar `/api/health`, login, CRUD, consola del navegador y logs.
 
-Para una prueba temporal, borrar el proyecto de Railway, el servicio de Render
-y el proyecto de Vercel al terminar. No uses las credenciales de desarrollo
+Para una prueba temporal, borrar la instancia de TiDB, el servicio de Render y
+el proyecto de Vercel al terminar. No uses las credenciales de desarrollo
 incluidas en `.env.example` en servicios públicos.
 
 ### Credenciales de desarrollo
