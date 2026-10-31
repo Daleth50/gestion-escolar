@@ -226,6 +226,35 @@ Start Command: npm start
 Health Check Path: /api/health
 ```
 
+Al configurar `Root Directory: backend`, Render ejecuta los comandos desde esa
+carpeta y solo considera cambios dentro de ella para el auto-deploy. Por eso,
+un cambio únicamente en `README.md`, `.github/`, `render.yaml` o `database/`
+no inicia automáticamente un despliegue de este servicio.
+
+Los cambios que sí suelen disparar el auto-deploy son:
+
+```text
+backend/src/**
+backend/package.json
+backend/package-lock.json
+backend/Dockerfile
+```
+
+Si necesitas desplegar un cambio realizado fuera de `backend/`, usa en Render:
+
+```text
+Manual Deploy → Deploy latest commit
+```
+
+Para comprobar el auto-deploy, realiza un cambio real dentro de `backend/`,
+haz commit y súbelo a `main`:
+
+```bash
+git add backend/
+git commit -m "chore: probar auto deploy de Render"
+git push origin main
+```
+
 Configura estas variables en Render:
 
 ```env
