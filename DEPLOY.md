@@ -52,20 +52,21 @@ La configuración utilizada es:
 Host: gateway01.ap-northeast-1.prod.aws.tidbcloud.com
 Port: 4000
 Usuario: el usuario mostrado por TiDB
-Base: sys
+Base: test
 TLS: activado
 ```
 
-TiDB Starter puede proporcionar únicamente la base `sys`. Por eso los dos
-scripts SQL deben usar `sys`:
+TiDB Starter proporciona una base de aplicación `test`. La base `sys` es
+interna y no debe usarse para crear las tablas de la aplicación. Por eso los
+dos scripts SQL deben usar `test`:
 
 ```sql
-USE sys;
+USE test;
 ```
 
 En `database/init/01-schema.sql`, elimina o comenta el bloque que intenta
-crear `gestion_escolar` y deja `USE sys;`. En
-`database/init/02-seed.sql`, cambia `USE gestion_escolar;` por `USE sys;`.
+crear `gestion_escolar` y deja `USE test;`. En
+`database/init/02-seed.sql`, cambia `USE gestion_escolar;` por `USE test;`.
 
 Ejecuta primero el esquema y después los datos iniciales desde un cliente
 MySQL compatible con TLS:
@@ -76,7 +77,7 @@ MySQL compatible con TLS:
 Comprueba la instalación:
 
 ```sql
-USE sys;
+USE test;
 SHOW TABLES;
 SELECT correo FROM usuarios;
 ```
@@ -103,8 +104,8 @@ PORT=10000
 DB_HOST=gateway01.ap-northeast-1.prod.aws.tidbcloud.com
 DB_PORT=4000
 DB_SSL=true
-DB_NAME=sys
-DB_USER=usuario-de-TiDB
+DB_NAME=test
+DB_USER=usuario-generado-por-TiDB
 DB_PASSWORD=contraseña-de-TiDB
 AUTH_SECRET=secreto-largo-y-aleatorio
 CORS_ORIGIN=https://tu-proyecto.vercel.app
@@ -205,10 +206,10 @@ DB_PORT=4000
 Confirma que Render use:
 
 ```env
-DB_NAME=sys
+DB_NAME=test
 ```
 
-y que las tablas hayan sido creadas en `sys`.
+y que las tablas hayan sido creadas en `test`.
 
 ### Error CORS en el navegador
 
