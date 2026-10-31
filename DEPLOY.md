@@ -20,6 +20,136 @@ Archivos relevantes:
 - `.vercelignore`: evita enviar archivos auxiliares al build de Vercel.
 - `backend/src/config/database.js`: conexión MySQL/TiDB con TLS.
 
+### Crear los archivos de despliegue
+
+Desde la raíz del repositorio crea las carpetas y archivos:
+
+```bash
+mkdir -p .github/workflows
+touch .github/workflows/ci.yml render.yaml .vercelignore
+```
+
+#### Crear `.github/workflows/ci.yml`
+
+Este archivo ejecuta CI en cada Pull Request y en cada push a `main`:
+
+```yaml
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  frontend:
+    name: Frontend checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Typecheck
+        run: npx tsc --noEmit
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_API_URL: https://api.example.invalid/api
+
+  backend:
+    name: Backend checks
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Check JavaScript syntax
+        run: find src -type f -name '*.js' -print0 | xargs -0 -n1 node --check
+```
+
+#### Crear `render.yaml`
+
+Este archivo define el servicio Node.js de Render y sus variables:
+
+```yaml
+services:
+  - type: web
+    name: gestion-escolar-api
+    runtime: node
+    rootDir: backend
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "10000"
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: "4000"
+      - key: DB_SSL
+        value: "true"
+      - key: DB_NAME
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: AUTH_SECRET
+        generateValue: true
+      - key: CORS_ORIGIN
+        sync: false
+```
+
+En Render selecciona **New > Blueprint**, conecta el repositorio y confirma
+este archivo. Si creas el servicio manualmente, usa los mismos valores de
+`rootDir`, `buildCommand`, `startCommand` y `healthCheckPath`.
+
+#### Crear `.vercelignore`
+
+Este archivo evita que Vercel compile copias auxiliares y servicios que no
+pertenecen al frontend:
+
+```text
+archivos_para_copiar
+backend
+database
+compose.yaml
+```
+
+#### Guardar y publicar los archivos
+
+```bash
+git add .github/workflows/ci.yml render.yaml .vercelignore
+git commit -m "ci: agregar archivos de despliegue"
+git push origin main
+```
+
 Antes de desplegar:
 
 ```bash
